@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>TSP Macro Dashboard</title>
+<style>
+  :root {
+    /* Toptal brand palette, sampled from the supplied swatch */
+    --ink: #262D3D;
+    --ink-secondary: #49526A;
+    --surface-page: #EBECED;
+    --surface-card: #ffffff;
+    --tint: #B6D8FF;
+    --accent-cyan: #09B6F9;
+
+    --supplier: #0F256E;
+    --talent: #183A9E;
+    --fulfillment: #204ECF;
+
+    --good-bg: #E3F6ED;  --good-text: #0E6B48;
+    --bad-bg: #FBE9E7;   --bad-text: #C0392B;
+    --flat-bg: #EBECED;  --flat-text: #49526A;
+  }
+  * { box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    margin: 0; padding: 0 0 30px; background: var(--surface-page); color: var(--ink);
+  }
+  .titlebar {
+    background: linear-gradient(120deg, var(--ink) 0%, var(--supplier) 100%);
+    color: #fff; padding: 16px 28px; text-align: center;
+  }
+  .titlebar h1 { margin: 0 0 3px; font-size: 18px; letter-spacing: .03em; }
+  .titlebar .sub { font-size: 11.5px; color: var(--tint); }
+
+  .wrap { max-width: 1400px; margin: 0 auto; padding: 0 18px; }
+
+  .section { margin-top: 18px; background: var(--panel-tint, #fff); border-radius: 12px; padding: 14px 16px 16px; }
+  .section-head {
+    display: flex; align-items: baseline; gap: 10px; margin-bottom: 10px;
+  }
+  .section-title {
+    font-size: 13px; font-weight: 800; letter-spacing: .03em; text-transform: uppercase;
+    padding: 5px 13px; border-radius: 5px; color: #fff;
+    box-shadow: 0 1px 3px rgba(0,0,0,.15);
+  }
+  .section-sub { font-size: 11px; color: var(--ink-secondary); }
+
+  .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; }
+  .card {
+    background: var(--surface-card); border-radius: 8px; padding: 10px 12px;
+    border-top: 3px solid var(--cat-color, var(--ink));
+    box-shadow: 0 1px 4px rgba(15,37,110,.08);
+  }
+  .card .kpi-name {
+    font-size: 10.5px; font-weight: 800; color: var(--cat-color, var(--ink)); margin-bottom: 5px;
+    min-height: 28px; line-height: 1.25; text-transform: uppercase; letter-spacing: .02em;
+  }
+  .card .value-row { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; }
+  .card .value { font-size: 23px; font-weight: 800; color: var(--ink); }
+  .card .growth {
+    font-size: 10.5px; font-weight: 700; padding: 2px 7px; border-radius: 10px; white-space: nowrap;
+  }
+  .growth.good { background: var(--good-bg); color: var(--good-text); }
+  .growth.bad  { background: var(--bad-bg);  color: var(--bad-text); }
+  .growth.flat { background: var(--flat-bg); color: var(--flat-text); }
+  .growth.na   { background: var(--flat-bg); color: #9aa0ab; }
+
+  .card .prior { font-size: 9.5px; color: #8890a0; margin-top: 2px; }
+
+  .target-row { display: flex; align-items: center; gap: 6px; margin-top: 7px; }
+  .target-track {
+    flex: 1; height: 7px; border-radius: 4px; background: var(--tint);
+    opacity: .45; overflow: hidden;
+  }
+  .target-fill { height: 100%; border-radius: 4px; background: var(--accent-cyan); }
+  .target-value { font-size: 10.5px; font-weight: 700; color: var(--ink); white-space: nowrap; }
+  .target-caption { font-size: 9px; color: #b3b8c0; margin-top: 2px; font-style: italic; }
+
+  .card .note { font-size: 9.5px; color: #8890a0; margin-top: 6px; line-height: 1.3; border-top: 1px solid #eee; padding-top: 5px; }
+  .card .flag {
+    display: inline-block; font-size: 8.5px; font-weight: 800; letter-spacing: .03em;
+    background: var(--bad-text); color: #fff; padding: 1px 5px; border-radius: 7px; margin-bottom: 4px;
+  }
+</style>
+</head>
+<body>
+
+<div class="titlebar">
+  <h1>TALENT SUPPLIER PROGRAM — MACRO DASHBOARD</h1>
+  <div class="sub">Supplier · Talent · Job Fulfillment · Snapshot as of 2026-07-29 · Growth % vs. 90 days prior</div>
+</div>
+
+<div class="wrap">
+
+<!-- ============ SUPPLIER ============ -->
+<div class="section" id="supplier" style="--section-color:var(--supplier); --panel-tint:#CACFDF">
+  <div class="section-head">
+    <div class="section-title" style="background:var(--supplier)">Supplier</div>
+    <div class="section-sub">Pipeline stock, status mix, and activity health of the supplier base</div>
+  </div>
+
+  <div class="cards">
+
+    <div class="card" style="--cat-color:var(--supplier)">
+      <div class="kpi-name">Total Suppliers</div>
+      <div class="value-row"><span class="value">436</span><span class="growth good">↑ 3.3%</span></div>
+      <div class="prior">90 days ago: 422</div>
+      <div class="target-row"><div class="target-track"><div class="target-fill" style="width:0%"></div></div><span class="target-value">436</span></div>
+      <div class="target-caption">Target not yet set</div>
+      <div class="note">Sum of Applied, Active and Pending Talent status (excludes Rejected/Removed).</div>
+    </div>
+
+    <div class="card" style="--cat-color:var(--supplier)">
+      <div class="kpi-name">Active Suppliers</div>
+      <div class="value-row"><span class="value">97</span><span class="growth good">↑ 3.2%</span></div>
+      <div class="prior">90 days ago: 94</div>
+      <div class="target-row"><div class="target-track"><div class="target-fill" style="width:0%"></div></div><span class="target-value">97</span></div>
+      <div class="target-caption">Target not yet set</div>
+      <div class="note">Agreement+Tax signed AND ≥1 candidate reached Talent/MLS status.</div>
+    </div>
+
+    <div class="card" style="--cat-color:var(--supplier)">
+      <div class="kpi-name">Active Suppliers with Activity</div>
+      <div class="value-row"><span class="value">31</span><span class="growth good">↑ 138.5%</span></div>
+      <div class="prior">90 days ago: 13 (of 94 then-Active)</div>
+      <div class="target-row"><div class="target-track"><div class="target-fill" style="width:0%"></div></div><span class="target-value">31</span></div>
+      <div class="target-caption">Target not yet set</div>
+      <div class="note">Of 97 Active suppliers, 31 (32%) show any submission/application/engagement signal in the trailing 12 months.</div>
+    </div>
+
+    <div class="card" style="--cat-color:var(--supplier)">
+      <div class="kpi-name">Suppliers with Engagements</div>
+      <div class="value-row"><span class="value">11</span><span class="growth good">↑ 22.2%</span></div>
+      <div class="prior">90 days ago: 9</div>
+      <div class="target-row"><div class="target-track"><div class="target-fill" style="width:0%"></div></div><span class="target-value">11</span></div>
+      <div class="target-caption">Target not yet set</div>
+      <div class="note">Counts suppliers, not engagements.</div>
+    </div>
+
+    <div class="card" style="--cat-color:var(--supplier)">
+      <div class="kpi-name">New-Supplier Onboarding Cycle Time</div>
+      <div class="value-row"><span class="value">58.5d</span><span class="growth bad">↑ 15.8%</span></div>
+      <div class="prior">90 days ago: 50.5d</div>
+      <div class="target-row"><div class="target-track"><div class="target-fill" style="width:0%"></div></div><span class="target-value">58.5d</span></div>
+      <div class="target-caption">Target not yet set</div>
+      <div class="note">Application → Active, excluding dormant cases.</div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ============ TALENT ============ -->
+<div class="section" id="talent" style="--section-color:var(--talent); --panel-tint:#CCD4EA">
+  <div class="section-head">
+    <div class="section-title" style="background:var(--talent)">Talent</div>
+    <div class="section-sub">Candidates sourced through the supplier network, by status and pipeline speed</div>
+  </div>
+
+  <div class="cards">
+
+    <div class="card" style="--cat-color:var(--talent)">
+      <div class="kpi-name">Active Talents</div>
+      <div class="value-row"><span class="value">177</span><span class="growth good">↑ 12.7%</span></div>
+      <div class="prior">90 days ago: 157</div>
+      <div class="target-row"><div class="target-track"><div class="target-fill" style="width:0%"></div></div><span class="target-value">177</span></div>
+      <div class="target-caption">Target not yet set</div>
+      <div class="note">Total of Active talents.</div>
+    </div>
+
+    <div class="card" style="--cat-color:var(--talent)">
+      <div class="kpi-name">New Active Talents</div>
+      <div class="value-row"><span class="value">19</span><span class="growth good">↑ 58.3%</span></div>
+      <div class="prior">Prior 90d: 12</div>
+      <div class="target-row"><div class="target-track"><div class="target-fill" style="width:0%"></div></div><span class="target-value">19</span></div>
+      <div class="target-caption">Target not yet set</div>
+      <div class="note">New Active-talent approvals, trailing 90d vs prior 90d.</div>
+    </div>
+
+    <div class="card" style="--cat-color:var(--talent)">
+      <div class="kpi-name">Talent Submission Lifecycle</div>
+      <div class="value-row"><span class="value">16d</span><span class="growth good">↓ 42.9%</span></div>
+      <div class="prior">Prior 90d: 28d</div>
+      <div class="target-row"><div class="target-track"><div class="target-fill" style="width:0%"></div></div><span class="target-value">16d</span></div>
+      <div class="target-caption">Target not yet set</div>
+      <div class="note">From Applied status to Approved.</div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ============ JOB FULFILLMENT ============ -->
+<div class="section" id="fulfillment" style="--section-color:var(--fulfillment); --panel-tint:#CED8F4">
+  <div class="section-head">
+    <div class="section-title" style="background:var(--fulfillment)">Job Fulfillment</div>
+    <div class="section-sub">Engagements, placements, and revenue generated through the supplier network</div>
+  </div>
+
+  <div class="cards">
+
+    <div class="card" style="--cat-color:var(--fulfillment)">
+      <div class="kpi-name">Active Engagements</div>
+      <div class="value-row"><span class="value">12</span><span class="growth good">↑ 33.3%</span></div>
+      <div class="prior">90 days ago: 9</div>
+      <div class="target-row"><div class="target-track"><div class="target-fill" style="width:0%"></div></div><span class="target-value">12</span></div>
+      <div class="target-caption">Target not yet set</div>
+      <div class="note">Total of active engagements with Supplier talents.</div>
+    </div>
+
+    <div class="card" style="--cat-color:var(--fulfillment)">
+      <div class="kpi-name">SR Fulfillment</div>
+      <div class="value-row"><span class="value">0</span><span class="growth na">n/a</span></div>
+      <div class="prior">Prior 90d: 0 · all-time: 2 of 919</div>
+      <div class="target-row"><div class="target-track"><div class="target-fill" style="width:0%"></div></div><span class="target-value">0</span></div>
+      <div class="target-caption">Target not yet set</div>
+      <div class="note">Supplier talents hired into a tracked Sourcing Request Job (SR Jobs ∩ Engagement hires ∩ Supplier Talent backlog, verified in BigQuery).</div>
+    </div>
+
+    <div class="card" style="--cat-color:var(--fulfillment)">
+      <div class="kpi-name">Revenue via Supplier Network</div>
+      <div class="value-row"><span class="value">$397,536</span><span class="growth good">↑ 31.3%</span></div>
+      <div class="prior">Prior 90d: $302,729</div>
+      <div class="target-row"><div class="target-track"><div class="target-fill" style="width:0%"></div></div><span class="target-value">$397,536</span></div>
+      <div class="target-caption">Target not yet set</div>
+      <div class="note">Finance.InvoicedRevenue → Engagement → Talent → TalentSupplier.</div>
+    </div>
+
+  </div>
+</div>
+
+</div>
+
+</body>
+</html>
