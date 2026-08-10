@@ -1,0 +1,881 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>TSP Current-State Process Flow — Swimlanes</title>
+<style>
+  :root {
+    --matcher: #C9962C;
+    --owner: #1B6E93;
+    --supplier: #2E7D5B;
+    --ts: #6B4C9A;
+    --screening: #B2551C;
+    --legal: #34495E;
+    --gap: #8C8C8C;
+    --decision: #E67E22;
+    --navy: #10163A;
+  }
+  * { box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    margin: 0;
+    padding: 0 0 60px;
+    background: #f2f2f2;
+    color: #1a1a1a;
+  }
+  .titlebar {
+    background: var(--navy);
+    color: #fff;
+    padding: 26px 32px;
+    text-align: center;
+  }
+  .titlebar h1 { margin: 0 0 6px; font-size: 24px; letter-spacing: .03em; }
+  .titlebar .sub { font-size: 13.5px; color: #cfd4e6; }
+
+  .intro {
+    max-width: 1200px;
+    margin: 24px auto 0;
+    background: #fff8e6;
+    border: 1px solid #f0dca0;
+    border-radius: 8px;
+    padding: 14px 20px;
+    font-size: 13px;
+    color: #6b5400;
+  }
+  .intro b { color: #4a3900; }
+
+  .legend {
+    max-width: 1200px;
+    margin: 18px auto 0;
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 14px 20px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px 26px;
+    font-size: 13px;
+  }
+  .legend h3 { width: 100%; margin: 0 0 6px; font-size: 12px; text-transform: uppercase; letter-spacing: .05em; color: #666; }
+  .legend .item { display: flex; align-items: center; gap: 7px; white-space: nowrap; }
+  .swatch { width: 15px; height: 15px; border-radius: 4px; display: inline-block; flex: none; }
+  .swatch.diamond { border-radius: 3px; transform: rotate(45deg); }
+  .swatch.gap { background: #D9D9D9; border: 2px dashed #8C8C8C; }
+  .swatch.loop { background: none; border: none; border-top: 2px dashed #B33A3A; width: 20px; height: 0; margin-top: 7px; }
+
+  .nav {
+    max-width: 1200px;
+    margin: 18px auto 0;
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 12px 20px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
+  }
+  .nav b { font-size: 12px; text-transform: uppercase; letter-spacing: .05em; color: #666; margin-right: 4px; }
+  .nav a {
+    color: #10163A;
+    background: #eef2f7;
+    border: 1px solid #c7d2e0;
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 6px 12px;
+    border-radius: 6px;
+  }
+  .nav a:hover { background: #dde6f0; }
+
+  .diagram-block { max-width: 1200px; margin: 46px auto 0; }
+  .diagram-header {
+    background: var(--navy);
+    color: #fff;
+    padding: 14px 20px;
+    border-radius: 8px 8px 0 0;
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: .02em;
+    scroll-margin-top: 16px;
+  }
+  .diagram-header .d-sub { display:block; font-size: 12.5px; font-weight: 400; color: #cfd4e6; margin-top: 3px; letter-spacing: 0; }
+
+  .lane-headers {
+    display: grid;
+    gap: 0;
+  }
+  .lane-header {
+    color: #fff;
+    font-weight: 700;
+    font-size: 13.5px;
+    text-align: center;
+    padding: 9px 6px;
+  }
+  .lane-grid {
+    display: grid;
+    gap: 0;
+    position: relative;
+    background: #fff;
+    border: 1px solid #ddd;
+    border-top: none;
+    border-radius: 0 0 8px 8px;
+    padding-bottom: 18px;
+  }
+  .cell {
+    padding: 14px 14px;
+    position: relative;
+    display: flex;
+    align-items: center;
+    min-height: 60px;
+  }
+  .box {
+    width: 100%;
+    border-radius: 8px;
+    padding: 10px 12px;
+    color: #fff;
+    position: relative;
+    z-index: 2;
+    box-shadow: 0 1px 3px rgba(0,0,0,.15);
+  }
+  .box .row-tag {
+    position: absolute;
+    top: -8px;
+    left: -8px;
+    background: #fff;
+    color: #333;
+    border: 1px solid #ccc;
+    border-radius: 50%;
+    width: 22px;
+    height: 22px;
+    font-size: 11px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .box .t { font-weight: 700; font-size: 13.5px; margin-bottom: 3px; }
+  .box .s { font-size: 11.8px; opacity: .95; line-height: 1.35; }
+
+  .box.gap {
+    background: #D9D9D9;
+    color: #333;
+    border: 2px dashed #8C8C8C;
+  }
+  .box.gap .t { color: #333; }
+  .box.gap .badge {
+    position: absolute;
+    top: -10px;
+    right: -8px;
+    background: #C0392B;
+    color: #fff;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: .04em;
+    padding: 2px 7px;
+    border-radius: 10px;
+  }
+
+  .box.decision {
+    background: none;
+    box-shadow: none;
+    padding: 0;
+    min-height: 90px;
+    display: flex;
+  }
+  .box.decision .hex-shape {
+    background: var(--decision);
+    clip-path: polygon(6% 50%, 25% 8%, 75% 8%, 94% 50%, 75% 92%, 25% 92%);
+    padding: 20px 22px;
+    text-align: center;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    box-shadow: 0 1px 3px rgba(0,0,0,.15);
+  }
+
+  .divider-cell { padding: 2px 14px; display: flex; align-items: center; }
+  .divider {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    color: #9aa3b3;
+    font-size: 10.5px;
+    font-weight: 700;
+    letter-spacing: .05em;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+  .divider::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: #dde1e8;
+  }
+
+  .end-callouts { margin-top: 18px; }
+  .end-callouts-heading {
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: .05em;
+    text-transform: uppercase;
+    color: #8C8C8C;
+    margin-bottom: 8px;
+  }
+  .callout {
+    background: #D9D9D9;
+    border: 2px dashed #8C8C8C;
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-size: 12.5px;
+    color: #333;
+    margin-bottom: 10px;
+  }
+  .callout .badge {
+    display: inline-block;
+    background: #C0392B;
+    color: #fff;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: .04em;
+    padding: 2px 7px;
+    border-radius: 10px;
+    margin-right: 8px;
+  }
+
+  svg.connectors {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    pointer-events: none;
+    z-index: 3;
+    overflow: visible;
+  }
+  .lane-grid { overflow: visible; }
+
+  .exit-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 12px 4px 0;
+  }
+  .exit-badge {
+    background: #eef2f7;
+    border: 1px solid #c7d2e0;
+    color: #24425e;
+    font-size: 12px;
+    padding: 5px 10px;
+    border-radius: 6px;
+  }
+  .exit-badge b { color: #10163A; }
+
+  .note {
+    max-width: 1200px;
+    margin: 34px auto 0;
+    font-size: 12.5px;
+    color: #555;
+    line-height: 1.6;
+    padding: 0 4px;
+  }
+  code { background: #e8e8e8; padding: 1px 5px; border-radius: 4px; }
+</style>
+</head>
+<body>
+
+<div class="titlebar">
+  <h1>TALENT SUPPLIER PROGRAM — CURRENT-STATE (AS-IS) PROCESS FLOW</h1>
+  <div class="sub">Swimlanes by responsible party — mirrors the "Qualitative" tab row-by-row. Node numbers = row numbers in that tab.</div>
+</div>
+
+<div class="intro">
+  Boxes are colored by responsible party (see legend). Each intake is <b>one continuous connected flow</b> through Shared
+  <b>C → A → B</b> (reordered from the tab's A/B/C to match the real sequence — verification, then screening, then legal
+  onboarding, which completes once screening reaches MLS). Shared steps repeat identically across diagrams by design, not
+  by error. A combined view of all three intakes is available in a separate diagram:
+  <a href="tsp-current-state-flow-combined.html">tsp-current-state-flow-combined.html</a>.
+  <br><br>
+  <b>Gray dashed boxes marked GAP</b> are steps not reliably executed today; fuller GAP explanations are listed once at the
+  end of each flow, not inline.
+</div>
+
+<div class="legend">
+  <h3>Responsible party</h3>
+  <div class="item"><span class="swatch" style="background:#C9962C"></span>Matcher</div>
+  <div class="item"><span class="swatch" style="background:#1B6E93"></span>TSP Program Owner</div>
+  <div class="item"><span class="swatch" style="background:#2E7D5B"></span>Supplier</div>
+  <div class="item"><span class="swatch" style="background:#6B4C9A"></span>Talent Specialist</div>
+  <div class="item"><span class="swatch" style="background:#B2551C"></span>Screening Team</div>
+  <div class="item"><span class="swatch" style="background:#34495E"></span>Legal / Legal Ops</div>
+</div>
+<div class="legend">
+  <h3>Shapes &amp; flags</h3>
+  <div class="item"><span class="swatch" style="background:#1B6E93;border-radius:4px"></span>Rectangle = process step (colored by lane)</div>
+  <div class="item"><span class="swatch diamond" style="background:#E67E22"></span>Diamond = decision / branch point</div>
+  <div class="item"><span class="swatch gap"></span>Gray dashed + <b style="color:#C0392B">GAP</b> badge = not reliably executed today</div>
+  <div class="item"><span class="swatch loop"></span>Dashed red = loop-back / rejection path</div>
+  <div class="item">→ Blue badge = long-distance or future-candidate handoff (see notes under each flow)</div>
+</div>
+
+<div class="nav">
+  <b>Jump to:</b>
+  <a href="#diagram-1">Diagram 1 — Intake 1 (full journey)</a>
+  <a href="#diagram-2">Diagram 2 — Intake 2 (full journey)</a>
+  <a href="#diagram-3">Diagram 3 — Intake 3 (full journey)</a>
+  <a href="tsp-current-state-flow-combined.html">Combined view — all intakes (separate page)</a>
+</div>
+
+<div id="root"></div>
+
+<div class="note">
+  Data-quality note: rows 15 and 19 are recorded as "TSP Program Owner" in the Qualitative tab's Responsible column, but the action
+  described is performed by the Supplier (row 15) and the Matcher (row 19) respectively — consistent with how the equivalent Intake 1
+  steps (rows 4, 6) are recorded. For this diagram we placed both by the actual actor performing the action, since that is the point of
+  a swimlane view; the Qualitative tab itself was left unchanged. Flagging this so it can be corrected there too if it's a genuine
+  data-entry slip rather than intentional.
+</div>
+
+<script>
+const LANES = {
+  matcher:   { label: 'Matcher',              color: '#C9962C' },
+  owner:     { label: 'TSP Program Owner',    color: '#1B6E93' },
+  supplier:  { label: 'Supplier',             color: '#2E7D5B' },
+  ts:        { label: 'Talent Specialist',    color: '#6B4C9A' },
+  screening: { label: 'Screening Team',       color: '#B2551C' },
+  legal:     { label: 'Legal / Legal Ops',    color: '#34495E' },
+};
+const CANON_LANE_ORDER = ['matcher','owner','supplier','ts','screening','legal'];
+
+const BLOCKS = {
+  intake1: {
+    title: 'Intake 1 — Matcher-Initiated Demand (Trigger 1)',
+    steps: [
+      {row:1, lane:'matcher', title:'Matcher Request Received', sub:'Matcher tags a job needing supplier help in Slack, or DMs the TSP Owner directly'},
+      {row:2, lane:'owner', title:'Supplier List Selection', sub:'Owner manually selects country/suppliers/job ID in the Supplier Email Tool'},
+      {row:3, lane:'owner', title:'Outreach Email Sent', sub:'Automated Form-1 outreach email to selected suppliers (owner throttles volume manually)'},
+      {row:4, lane:'supplier', title:'Supplier Candidate Submission (Form 1)', sub:'Job ID, employee/skills confirmation, candidate details, rate, CV'},
+      {row:5, lane:'owner', title:'Share Candidates with Matcher', sub:'Owner shares the submitted candidate(s) with the requesting matcher'},
+      {row:6, lane:'matcher', title:'Matcher Fit Confirmation', sub:'Matcher reviews the shared candidate(s) and confirms or rejects fit'},
+      {row:7, lane:'owner', title:'Route to Verification / Onboarding', sub:'Fan-out router', decision:true},
+    ],
+    edges: [[1,2],[2,3],[3,4],[4,5],[5,6],[6,7]],
+  },
+  intake2: {
+    title: 'Intake 2 — Platform Self-Service (Application & Candidate Submission)',
+    steps: [
+      {row:8, lane:'supplier', title:'Organic Company Application', sub:'Supplier applies directly via toptal.com — no matcher/outreach involved'},
+      {row:9, lane:'supplier', title:'Supplier Follow-Up Email (Status)', sub:'No internal notification fires, so supplier emails asking for a status update'},
+      {row:10, lane:'owner', title:'Branch: Company Onboarding', sub:'Every organic application proceeds to Shared B (new/unapproved supplier)'},
+      {row:11, lane:'supplier', title:'Portal Candidate Submission', sub:'Independent trigger: an already-Active supplier submits via own portal — ⚠ no internal notification fires (see Gap P3)'},
+      {row:12, lane:'owner', title:'Manual Limbo Discovery & Recovery', sub:'Someone manually checks Platform → Users → Suppliers → Show Talent (or TS)'},
+      {row:13, lane:'supplier', title:'Supplier Follow-Up (Requests Kickoff)', sub:'Supplier emails asking to kick off screening for the candidate they submitted'},
+      {row:14, lane:'owner', title:'Request Retroactive Form 1', sub:'Owner asks supplier to retroactively complete Form 1, since portal bypassed it'},
+    ],
+    edges: [[8,9],[9,10],[11,12],[12,13],[13,14]],
+  },
+  intake3: {
+    title: 'Intake 3 — Proactive Outreach via Email (Trigger 2)',
+    steps: [
+      {row:15, lane:'supplier', title:'Proactive Email Candidate Submission', sub:'Supplier emails TSP Owner directly with a job ID + bench candidate, unsolicited'},
+      {row:16, lane:'owner', title:'Supplier Active-Status Check', sub:'Owner checks whether this supplier is already Active', decision:true},
+      {row:17, lane:'owner', title:'Share Eligibility Requirements', sub:'Owner emails the new supplier the eligibility requirements'},
+      {row:18, lane:'owner', title:'Share Candidates with Matcher (Ad Hoc)', sub:'Owner reviews and shares the submitted candidate(s) with the matcher'},
+      {row:19, lane:'matcher', title:'Matcher Fit Confirmation (Ad Hoc)', sub:'Matcher reviews the shared candidate(s) and confirms or rejects fit'},
+      {row:20, lane:'owner', title:'Converge to Shared Onboarding/Screening', sub:'Confirmed candidate routes into the shared verification pipeline'},
+    ],
+    edges: [[15,16],[16,17,'Not Active'],[16,18,'Active',{targetSide:'left',corridor:true,sourceSide:'left'}],[18,19],[19,20]],
+  },
+  sharedC: {
+    title: 'Shared C — Per-Candidate Employment Verification & Legal Sign-off',
+    steps: [
+      {row:35, lane:'owner', title:'Request Per-Candidate Employment Document', sub:'Owner emails supplier requesting this candidate’s employment proof'},
+      {row:36, lane:'owner', title:'Share Candidate Info with Talent Specialist', sub:'Runs in parallel with row 35, via a template — screening prep can start pre-approval'},
+      {row:37, lane:'supplier', title:'Supplier Submits Employment Document', sub:'Supplier sends the requested employment document'},
+      {row:38, lane:'owner', title:'Forward Employment Doc to Legal', sub:'Owner forwards the document to Legal in #legal_talent-partners'},
+      {row:39, lane:'legal', title:'Legal Employment Verification Decision', sub:'Legal validates the employment document', decision:true},
+    ],
+    edges: [[35,37],[37,38],[38,39]],
+    calloutAfter: 'Employment Document Tracking: no centralized visibility into document status (requested / submitted / approved / rejected) across suppliers and candidates. Requested via ad hoc email, Legal is asked via a plain Slack message — no register of what was sent or its status. Applies to every candidate here, not just the first.',
+  },
+  sharedA: {
+    title: 'Shared A — Onboarding Handoff → Screening → Notification/Handback',
+    steps: [
+      {row:21, lane:'ts', title:'Handoff to Onboarding', sub:'Owner posts to #supplier-talent-onboarding; TS claims via 👀 emoji'},
+      {row:22, lane:'ts', title:'Screening Kickoff / Sourcing Call', sub:'TS books call; booking link relayed Owner → Supplier → Candidate (no direct TS↔candidate channel)'},
+      {row:23, lane:'screening', title:'Screening Funnel', sub:'English/Sourcing → Online Test → T1 → T2 → T3 → MLS'},
+      {row:24, lane:'ts', title:'Internal Screening-Result Notification', sub:'Only ~2 of 6 Talent Specialists reliably post the pass/MLS status back', gap:true},
+      {row:25, lane:'owner', title:'Matcher Notification via DM', sub:'Owner DMs the originating matcher — confirmed real, but informal/untracked'},
+      {row:26, lane:'owner', title:'Client Notification of Approval/Rejection', sub:'Whether/how the client side is told is unconfirmed — no evidence of this happening', gap:true},
+      {row:27, lane:'owner', title:'Job-Closed Mid-Screening Handling', sub:'What happens if the job/SR closes mid-screening is unconfirmed — no evidence found', gap:true},
+    ],
+    edges: [[21,22],[22,23],[23,24],[24,25],[25,26],[26,27]],
+  },
+  sharedB: {
+    title: 'Shared B — New-Supplier Legal Onboarding (Company-Level)',
+    steps: [
+      {row:28, lane:'owner', title:'Requirements & Eligibility Screen', sub:'Owner sends requirements + sample contract + COI info email'},
+      {row:29, lane:'owner', title:'Supplier Q&A / Clarification Loop', sub:'Supplier asks clarifying questions (Payments, Finance, Legal, platform, commercial terms)'},
+      {row:30, lane:'supplier', title:'Company Info & COI Submission', sub:'Supplier submits legal-entity info + COI document'},
+      {row:31, lane:'legal', title:'Legal COI Validation', sub:'Owner shares COI with Legal in #legal_talent-partners; Bilal/Lavinia validate'},
+      {row:32, lane:'legal', title:'Contract & Tax Form Signature', sub:'Legal Ops drafts Agreement + Tax form, sends via DocuSign'},
+      {row:33, lane:'owner', title:'Supplier Activation', sub:'Owner approves once Agreement+Tax signed AND screening reaches MLS; lifts freeze flag'},
+      {row:34, lane:'owner', title:'Post-Activation Eligible-Jobs Gating', sub:'Supplier can submit ad hoc candidates, but "Eligible Jobs" unlock only after first Talent (same vertical)'},
+    ],
+    edges: [[28,29],[29,30],[30,31],[31,32],[32,33],[33,34]],
+  },
+};
+
+function badgesFor(hasIntake2) {
+  return [
+    'Row 33 → Shared C, row 35 (future candidates from this now-active supplier)',
+    hasIntake2
+      ? 'Row 34 unlocks → Intake 2, row 11 (shown above, in this same diagram)'
+      : 'Row 34 unlocks → Intake 2, row 11 (see Diagram 2 or the Combined View)',
+  ];
+}
+
+const DIAGRAMS = [
+  {
+    id: 'diagram-1',
+    title: 'Diagram 1 — Intake 1: Full Journey',
+    sub: 'Matcher-initiated demand → verification → screening → (if new supplier) legal onboarding',
+    blockKeys: ['intake1','sharedC','sharedA','sharedB'],
+    crossEdges: [
+      [7,35,'Candidate(s)'],[7,36,null,{targetSide:'left',corridor:true}],
+      [7,28,'If new supplier',{targetSide:'right',corridor:true}],
+      [39,21,'Approved'],[39,35,'Rejected',{targetSide:'right',sourceSide:'right',corridor:true}],
+      [23,33,'Reaches MLS',{targetSide:'right',corridor:true}],
+    ],
+    badges: badgesFor(false),
+  },
+  {
+    id: 'diagram-2',
+    title: 'Diagram 2 — Intake 2: Full Journey',
+    sub: 'Platform self-service → verification → screening → (if new supplier) legal onboarding',
+    blockKeys: ['intake2','sharedC','sharedA','sharedB'],
+    crossEdges: [
+      [14,35],[14,36,null,{targetSide:'left',corridor:true,sourceSide:'left'}],
+      [10,28,'New supplier',{targetSide:'right',corridor:true}],
+      [39,21,'Approved'],[39,35,'Rejected',{targetSide:'right',sourceSide:'right',corridor:true}],
+      [23,33,'Reaches MLS',{targetSide:'right',corridor:true}],
+    ],
+    badges: badgesFor(true),
+  },
+  {
+    id: 'diagram-3',
+    title: 'Diagram 3 — Intake 3: Full Journey',
+    sub: 'Proactive outreach → verification → screening → (if new supplier) legal onboarding',
+    blockKeys: ['intake3','sharedC','sharedA','sharedB'],
+    crossEdges: [
+      [20,35],[20,36,null,{targetSide:'left',corridor:true,sourceSide:'left'}],
+      [17,28,'New supplier',{targetSide:'right',corridor:true}],
+      [39,21,'Approved'],[39,35,'Rejected',{targetSide:'right',sourceSide:'right',corridor:true}],
+      [23,33,'Reaches MLS',{targetSide:'right',corridor:true}],
+    ],
+    badges: badgesFor(false),
+  },
+];
+
+function buildMerged(blockKeys) {
+  const steps = [];
+  const edges = [];
+  const callouts = [];
+  blockKeys.forEach((key, i) => {
+    const block = BLOCKS[key];
+    if (i > 0) steps.push({ divider: true, title: block.title });
+    else steps.push({ divider: true, title: block.title, isFirst: true });
+    steps.push(...block.steps);
+    edges.push(...block.edges);
+    if (block.calloutAfter) callouts.push(block.calloutAfter);
+  });
+  return { steps, edges, callouts };
+}
+
+const root = document.getElementById('root');
+
+DIAGRAMS.forEach(diagram => {
+  const { steps, edges, callouts } = buildMerged(diagram.blockKeys);
+  edges.push(...diagram.crossEdges);
+  renderDiagram(root, diagram, steps, edges, callouts);
+});
+
+function renderDiagram(container, diagram, steps, edges, callouts) {
+  const dBlock = document.createElement('div');
+  dBlock.className = 'diagram-block';
+
+  const dHeader = document.createElement('div');
+  dHeader.className = 'diagram-header';
+  dHeader.id = diagram.id;
+  dHeader.innerHTML = `${diagram.title}<span class="d-sub">${diagram.sub}</span>`;
+  dBlock.appendChild(dHeader);
+
+  const lanes = CANON_LANE_ORDER.filter(l => steps.some(s => s.row != null && s.lane === l));
+  const laneIndex = {};
+  lanes.forEach((l, i) => laneIndex[l] = i);
+
+  const laneHeaders = document.createElement('div');
+  laneHeaders.className = 'lane-headers';
+  laneHeaders.style.gridTemplateColumns = `repeat(${lanes.length}, 1fr)`;
+  lanes.forEach(laneKey => {
+    const h = document.createElement('div');
+    h.className = 'lane-header';
+    h.style.background = LANES[laneKey].color;
+    h.textContent = LANES[laneKey].label;
+    laneHeaders.appendChild(h);
+  });
+  dBlock.appendChild(laneHeaders);
+
+  const grid = document.createElement('div');
+  grid.className = 'lane-grid';
+  grid.style.gridTemplateColumns = `repeat(${lanes.length}, 1fr)`;
+  grid.style.gridTemplateRows = `repeat(${steps.length}, auto)`;
+
+  const boxEls = {};
+
+  steps.forEach((step, i) => {
+    const gridRow = String(i + 1);
+
+    if (step.divider) {
+      const cell = document.createElement('div');
+      cell.className = 'divider-cell';
+      cell.style.gridColumn = `1 / -1`;
+      cell.style.gridRow = gridRow;
+      if (step.isFirst) cell.style.marginTop = '0';
+      const div = document.createElement('div');
+      div.className = 'divider';
+      div.textContent = step.title;
+      cell.appendChild(div);
+      grid.appendChild(cell);
+      return;
+    }
+
+
+    const cell = document.createElement('div');
+    cell.className = 'cell';
+    cell.style.gridColumn = String(laneIndex[step.lane] + 1);
+    cell.style.gridRow = gridRow;
+    cell.style.background = hexToTint(LANES[step.lane].color, 0.06);
+
+    const box = document.createElement('div');
+    box.className = 'box' + (step.gap ? ' gap' : '') + (step.decision ? ' decision' : '');
+    if (!step.gap && !step.decision) box.style.background = LANES[step.lane].color;
+
+    // decision boxes: the hexagon clip-path lives on an INNER wrapper, so the
+    // row-tag badge (positioned in the corner) sits on the unclipped outer .box
+    // and doesn't get cut off by the hexagon's cut corners
+    const contentHost = document.createElement('div');
+    if (step.decision) {
+      contentHost.className = 'hex-shape';
+      box.appendChild(contentHost);
+    }
+
+    const tag = document.createElement('div');
+    tag.className = 'row-tag';
+    tag.textContent = step.row;
+    box.appendChild(tag);
+
+    if (step.gap) {
+      const badge = document.createElement('div');
+      badge.className = 'badge';
+      badge.textContent = 'GAP';
+      box.appendChild(badge);
+    }
+
+    const t = document.createElement('div');
+    t.className = 't';
+    t.textContent = step.title;
+    (step.decision ? contentHost : box).appendChild(t);
+
+    const s = document.createElement('div');
+    s.className = 's';
+    s.textContent = step.sub;
+    (step.decision ? contentHost : box).appendChild(s);
+
+    cell.appendChild(box);
+    grid.appendChild(cell);
+    boxEls[step.row] = box;
+  });
+
+  // fill empty lane cells (real step rows only) with tinted background
+  steps.forEach((step, i) => {
+    if (step.row == null) return;
+    const r = i + 1;
+    lanes.forEach((laneKey, c) => {
+      if (step.lane === laneKey) return;
+      const filler = document.createElement('div');
+      filler.className = 'cell';
+      filler.style.gridColumn = String(c + 1);
+      filler.style.gridRow = String(r);
+      filler.style.background = hexToTint(LANES[laneKey].color, 0.06);
+      grid.appendChild(filler);
+    });
+  });
+
+  const svgNS = 'http://www.w3.org/2000/svg';
+  const svg = document.createElementNS(svgNS, 'svg');
+  svg.setAttribute('class', 'connectors');
+  grid.appendChild(svg);
+
+  dBlock.appendChild(grid);
+
+  if (diagram.badges && diagram.badges.length) {
+    const exitRow = document.createElement('div');
+    exitRow.className = 'exit-row';
+    diagram.badges.forEach(b => {
+      const el = document.createElement('span');
+      el.className = 'exit-badge';
+      el.textContent = b;
+      exitRow.appendChild(el);
+    });
+    dBlock.appendChild(exitRow);
+  }
+
+  if (callouts && callouts.length) {
+    const calloutsWrap = document.createElement('div');
+    calloutsWrap.className = 'end-callouts';
+    const heading = document.createElement('div');
+    heading.className = 'end-callouts-heading';
+    heading.textContent = 'Known gaps in this flow';
+    calloutsWrap.appendChild(heading);
+    callouts.forEach(text => {
+      const callout = document.createElement('div');
+      callout.className = 'callout';
+      callout.innerHTML = `<span class="badge">GAP</span>${text}`;
+      calloutsWrap.appendChild(callout);
+    });
+    dBlock.appendChild(calloutsWrap);
+  }
+
+  container.appendChild(dBlock);
+
+  // draw connectors after layout
+  requestAnimationFrame(() => {
+    const gridRect = grid.getBoundingClientRect();
+    svg.setAttribute('width', gridRect.width);
+    svg.setAttribute('height', gridRect.height);
+    svg.setAttribute('viewBox', `0 0 ${gridRect.width} ${gridRect.height}`);
+
+    const marker = document.createElementNS(svgNS, 'marker');
+    marker.setAttribute('id', 'arrow-' + diagram.id);
+    marker.setAttribute('viewBox', '0 0 10 10');
+    marker.setAttribute('refX', '8');
+    marker.setAttribute('refY', '5');
+    marker.setAttribute('markerWidth', '7');
+    marker.setAttribute('markerHeight', '7');
+    marker.setAttribute('orient', 'auto-start-reverse');
+    const arrowPath = document.createElementNS(svgNS, 'path');
+    arrowPath.setAttribute('d', 'M 0 0 L 10 5 L 0 10 z');
+    arrowPath.setAttribute('fill', '#666');
+    marker.appendChild(arrowPath);
+
+    const loopMarker = document.createElementNS(svgNS, 'marker');
+    loopMarker.setAttribute('id', 'arrow-loop-' + diagram.id);
+    loopMarker.setAttribute('viewBox', '0 0 10 10');
+    loopMarker.setAttribute('refX', '8');
+    loopMarker.setAttribute('refY', '5');
+    loopMarker.setAttribute('markerWidth', '7');
+    loopMarker.setAttribute('markerHeight', '7');
+    loopMarker.setAttribute('orient', 'auto-start-reverse');
+    const loopArrowPath = document.createElementNS(svgNS, 'path');
+    loopArrowPath.setAttribute('d', 'M 0 0 L 10 5 L 0 10 z');
+    loopArrowPath.setAttribute('fill', '#B33A3A');
+    loopMarker.appendChild(loopArrowPath);
+
+    const defs = document.createElementNS(svgNS, 'defs');
+    defs.appendChild(marker);
+    defs.appendChild(loopMarker);
+    svg.appendChild(defs);
+
+    const labelCountByRow = {};
+    const sideStackCount = {};
+    let corridorStack = 0;
+    const ARROW_GAP = 4; // small clearance so lines/arrowheads stop just outside a box's edge instead of overlapping it
+    edges.forEach(edge => {
+      const [fromRow, toRow, label, opts] = edge;
+      const targetSide = opts && opts.targetSide;
+      const sourceSide = opts && opts.sourceSide;
+      const corridor = opts && opts.corridor;
+      const fromBox = boxEls[fromRow];
+      const toBox = boxEls[toRow];
+      if (!fromBox || !toBox) return;
+      const fr = fromBox.getBoundingClientRect();
+      const tr = toBox.getBoundingClientRect();
+
+      const fromIdx = steps.findIndex(s => !s.divider && !s.callout && s.row === fromRow);
+      const toIdx = steps.findIndex(s => !s.divider && !s.callout && s.row === toRow);
+      const backward = toIdx < fromIdx;
+
+      let x1, y1;
+      if (sourceSide === 'left' || sourceSide === 'right') {
+        x1 = (sourceSide === 'left' ? fr.left - ARROW_GAP : fr.right + ARROW_GAP) - gridRect.left;
+        y1 = fr.top + fr.height/2 - gridRect.top;
+      } else {
+        x1 = fr.left + fr.width/2 - gridRect.left;
+        y1 = (backward ? fr.top - ARROW_GAP : fr.bottom + ARROW_GAP) - gridRect.top;
+      }
+
+      const path = document.createElementNS(svgNS, 'path');
+      let d;
+
+      if (targetSide === 'left' || targetSide === 'right') {
+        // route into the target's side edge instead of top/bottom, to keep boxes
+        // with multiple converging edges from clustering them all on one edge
+        const stackKey = toRow + '|' + targetSide;
+        const stackIdx = sideStackCount[stackKey] || 0;
+        sideStackCount[stackKey] = stackIdx + 1;
+        const stackOffset = (stackIdx - 0.5) * 16;
+
+        const entryX = (targetSide === 'left' ? tr.left - ARROW_GAP : tr.right + ARROW_GAP) - gridRect.left;
+        const entryY = tr.top + tr.height/2 - gridRect.top + stackOffset;
+        let approachX;
+        if (corridor) {
+          // route via a dedicated lane OUTSIDE the entire grid (guaranteed clear of
+          // every box, regardless of how many rows/blocks this edge skips over, and
+          // regardless of how many other edges stack alongside it) — used for
+          // relationships that would otherwise have to cross several unrelated boxes,
+          // or where a modest same-side offset risks landing on yet another lane's
+          // column further down the flow
+          const corridorIdx = corridorStack++;
+          approachX = targetSide === 'left'
+            ? -24 - corridorIdx * 13
+            : gridRect.width + 24 + corridorIdx * 13;
+        } else {
+          approachX = entryX + (targetSide === 'left' ? -1 : 1) * (26 + stackIdx * 10);
+        }
+
+        let labelY = y1;
+        if (sourceSide === 'left' || sourceSide === 'right') {
+          // both ends use a side entry — a clean 3-segment path, no separate
+          // vertical stub needed since we already start from the box's own edge
+          d = `M ${x1} ${y1} L ${approachX} ${y1} L ${approachX} ${entryY} L ${entryX} ${entryY}`;
+        } else {
+          // jog sideways immediately after leaving the source (not at the geometric
+          // midpoint) so the vertical run never travels through an intervening box
+          // that happens to share the source's column further down the sequence
+          const stub = 16;
+          const jogY = y1 + (backward ? -stub : stub);
+          d = `M ${x1} ${y1} L ${x1} ${jogY} L ${approachX} ${jogY} L ${approachX} ${entryY} L ${entryX} ${entryY}`;
+          labelY = jogY; // the corridor's horizontal run is actually at jogY, not y1 — anchor labels there so the offset in drawEdgeLabel gives real separation from the line instead of nearly cancelling out
+        }
+        path.setAttribute('d', d);
+        path.setAttribute('fill', 'none');
+        path.setAttribute('stroke', backward ? '#B33A3A' : '#777');
+        path.setAttribute('stroke-width', '1.8');
+        if (backward) path.setAttribute('stroke-dasharray', '5 3');
+        path.setAttribute('marker-end', `url(#arrow-${backward ? 'loop-' : ''}${diagram.id})`);
+        svg.appendChild(path);
+        if (label) {
+          if (corridor) {
+            // place the label out along the corridor itself, not directly under
+            // the source — the source often has ANOTHER edge leaving it too (e.g.
+            // the primary sequential arrow), and a label anchored at x1 would sit
+            // right on top of that other line, making it unclear which is which
+            const midCorridorX = x1 + (approachX - x1) * 0.6;
+            drawEdgeLabel(svg, svgNS, label, midCorridorX, labelY, backward ? -1 : 1, labelCountByRow, fromRow + '-corridor');
+          } else if (sourceSide === 'left' || sourceSide === 'right') {
+            // source exits from the box's own side edge — anchor the label further
+            // along the path (partway to the approach line) so it doesn't render
+            // on top of the source box itself
+            const midX = x1 + (approachX - x1) * 0.5;
+            drawEdgeLabel(svg, svgNS, label, midX, y1, backward ? -1 : 1, labelCountByRow, fromRow);
+          } else {
+            drawEdgeLabel(svg, svgNS, label, x1, y1, backward ? -1 : 1, labelCountByRow, fromRow);
+          }
+        }
+        return;
+      }
+
+      const x2 = tr.left + tr.width/2 - gridRect.left;
+      const y2 = (backward ? tr.bottom + ARROW_GAP : tr.top - ARROW_GAP) - gridRect.top;
+
+      const sameCol = Math.abs(x1 - x2) < 2;
+      const lo = Math.min(fromIdx, toIdx), hi = Math.max(fromIdx, toIdx);
+      const rowGap = hi - lo;
+      const fromStep = steps[fromIdx];
+      const hasRealBoxBetween = steps.some((s, idx) => idx > lo && idx < hi && s.row != null);
+      const blockedSameLane = steps.some((s, idx) => idx > lo && idx < hi && s.row != null && s.lane === fromStep.lane);
+      const needsBulge = sameCol && rowGap > 1 && hasRealBoxBetween;
+
+      if (sameCol && rowGap === 1) {
+        d = `M ${x1} ${y1} L ${x2} ${y2}`;
+      } else if (sameCol && !needsBulge) {
+        d = `M ${x1} ${y1} L ${x2} ${y2}`;
+      } else if (needsBulge) {
+        const bulge = 46;
+        d = `M ${x1} ${y1} C ${x1+bulge} ${y1+(backward?-18:18)}, ${x2+bulge} ${y2+(backward?18:-18)}, ${x2} ${y2}`;
+      } else if (blockedSameLane) {
+        // an intervening box shares the SOURCE's lane/column further down — hugging
+        // the source's own edge isn't enough clearance if that box is the same width
+        // (e.g. two boxes in the same lane), so jog immediately to the TARGET's own
+        // column instead (a different lane, guaranteed clear of this specific blocker)
+        const stub = 16;
+        const jogY = y1 + (backward ? -stub : stub);
+        d = `M ${x1} ${y1} L ${x1} ${jogY} L ${x2} ${jogY} L ${x2} ${y2}`;
+      } else {
+        const midY = y1 + (y2 - y1) / 2;
+        d = `M ${x1} ${y1} L ${x1} ${midY} L ${x2} ${midY} L ${x2} ${y2}`;
+      }
+      path.setAttribute('d', d);
+      path.setAttribute('fill', 'none');
+      path.setAttribute('stroke', backward ? '#B33A3A' : '#777');
+      path.setAttribute('stroke-width', '1.8');
+      if (backward) path.setAttribute('stroke-dasharray', '5 3');
+      path.setAttribute('marker-end', `url(#arrow-${backward ? 'loop-' : ''}${diagram.id})`);
+      svg.appendChild(path);
+
+      if (label) {
+        let lx;
+        const dir = backward ? -1 : 1;
+        if (needsBulge) {
+          const bulge = 46;
+          lx = x1 + bulge + 22;
+        } else if (sameCol) {
+          lx = x1 + 42;
+        } else {
+          lx = x1 + (x2 > x1 ? 46 : -46);
+        }
+        drawEdgeLabel(svg, svgNS, label, lx, y1, dir, labelCountByRow, fromRow);
+      }
+    });
+  });
+}
+
+function drawEdgeLabel(svg, svgNS, label, lx, y1, dir, labelCountByRow, fromRow) {
+  // anchor every label near the SOURCE end of the path, not at a distant midpoint,
+  // so it never lands on unrelated content further down the flow. Stagger labels
+  // that share the same source so they don't overlap each other.
+  const stackIdx = labelCountByRow[fromRow] || 0;
+  labelCountByRow[fromRow] = stackIdx + 1;
+  const ly = y1 + dir * (18 + stackIdx * 20);
+  const approxW = label.length * 6.4 + 12;
+  const rect = document.createElementNS(svgNS, 'rect');
+  rect.setAttribute('x', lx - approxW/2);
+  rect.setAttribute('y', ly - 12);
+  rect.setAttribute('width', approxW);
+  rect.setAttribute('height', 16);
+  rect.setAttribute('rx', 4);
+  rect.setAttribute('fill', '#fff');
+  rect.setAttribute('stroke', '#ddd');
+  svg.appendChild(rect);
+  const txt = document.createElementNS(svgNS, 'text');
+  txt.setAttribute('x', lx);
+  txt.setAttribute('y', ly);
+  txt.setAttribute('font-size', '11');
+  txt.setAttribute('font-weight', '700');
+  txt.setAttribute('fill', dir < 0 ? '#B33A3A' : '#444');
+  txt.setAttribute('text-anchor', 'middle');
+  txt.textContent = label;
+  svg.appendChild(txt);
+}
+
+function hexToTint(hex, alpha) {
+  const r = parseInt(hex.slice(1,3),16);
+  const g = parseInt(hex.slice(3,5),16);
+  const b = parseInt(hex.slice(5,7),16);
+  return `rgba(${r},${g},${b},${alpha})`;
+}
+</script>
+
+</body>
+</html>
