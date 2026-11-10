@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>TSP Macro Dashboard — Slide View</title>
+<style>
+  :root {
+    --ink: #262D3D;
+    --ink-secondary: #49526A;
+    --surface-page: #EBECED;
+    --surface-card: #ffffff;
+    --tint: #B6D8FF;
+
+    --supplier: #0F256E;
+    --talent: #183A9E;
+    --fulfillment: #204ECF;
+
+    --good-bg: #E3F6ED;  --good-text: #0E6B48;
+    --bad-bg: #FBE9E7;   --bad-text: #C0392B;
+    --flat-bg: #EBECED;  --flat-text: #49526A;
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; padding: 0; width: 1920px; height: 1080px; overflow: hidden;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background: var(--surface-page); color: var(--ink);
+  }
+  .titlebar {
+    background: linear-gradient(120deg, var(--ink) 0%, var(--supplier) 100%);
+    color: #fff; padding: 26px 32px 22px; text-align: center;
+  }
+  .titlebar h1 { margin: 0 0 6px; font-size: 34px; letter-spacing: .03em; }
+  .titlebar .sub { font-size: 18px; color: var(--tint); }
+  .titlebar .sub2 { font-size: 15px; opacity: .85; margin-top: 7px; }
+  .titlebar a { color: #fff; }
+
+  .wrap { padding: 22px 36px 0; }
+
+  .section { margin-top: 22px; border-radius: 14px; padding: 16px 20px 20px; }
+  .section-head { display: flex; align-items: baseline; gap: 14px; margin-bottom: 16px; }
+  .section-title {
+    font-size: 19px; font-weight: 800; letter-spacing: .03em; text-transform: uppercase;
+    padding: 7px 18px; border-radius: 7px; color: #fff;
+  }
+  .section-sub { font-size: 16px; color: var(--ink-secondary); }
+
+  .cards { display: grid; grid-template-columns: repeat(5, 1fr); gap: 14px; }
+  .cards.talent { grid-template-columns: repeat(3, 1fr); }
+  .cards.fulfillment { grid-template-columns: repeat(4, 1fr); }
+
+  .card {
+    background: var(--surface-card); border-radius: 10px; padding: 16px 18px;
+    border-top: 5px solid var(--cat-color, var(--ink));
+    box-shadow: 0 2px 6px rgba(15,37,110,.1);
+  }
+  .card .kpi-name {
+    font-size: 15px; font-weight: 800; color: var(--cat-color, var(--ink)); margin-bottom: 10px;
+    min-height: 40px; line-height: 1.25; text-transform: uppercase; letter-spacing: .01em;
+  }
+  .value-row { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+  .value { font-size: 36px; font-weight: 800; color: var(--ink); }
+  .growth { font-size: 15px; font-weight: 700; padding: 3px 11px; border-radius: 13px; white-space: nowrap; }
+  .growth.good { background: var(--good-bg); color: var(--good-text); }
+  .growth.bad  { background: var(--bad-bg);  color: var(--bad-text); }
+  .growth.na   { background: var(--flat-bg); color: #9aa0ab; }
+
+  .compare-row { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; margin-top: 10px; font-size: 15px; }
+  .compare-label { color: var(--ink-secondary); white-space: nowrap; font-weight: 700; }
+  .compare-prior { color: #8890a0; font-size: 14px; margin-top: 3px; }
+
+  .target-row { display: flex; align-items: center; gap: 9px; margin-top: 12px; }
+  .target-track { flex: 1; height: 11px; border-radius: 5px; background: var(--tint); opacity: .45; overflow: hidden; }
+  .target-fill { height: 100%; border-radius: 5px; background: var(--good-text); }
+  .target-value { font-size: 15px; font-weight: 700; color: var(--ink); white-space: nowrap; }
+  .target-caption { font-size: 13px; color: #b3b8c0; margin-top: 3px; font-style: italic; }
+</style>
+</head>
+<body>
+
+<div class="titlebar">
+  <h1>TALENT SUPPLIER PROGRAM — MACRO DASHBOARD</h1>
+  <div class="sub">Supplier · Talent · Job Fulfillment · Snapshot as of 2026-11-10 · Year-to-Date 2026 vs. Year-to-Date 2025</div>
+  <div class="sub2">Targets defined to achieve the $5,255,000 revenue potential by fulfilling 25% of 2025 jobs closed without a hire due to lack of talent — <a href="https://docs.google.com/presentation/d/1XFdHu241HRlqY3vboWRY6LV9NFQnP6l_Rt7K6jaK9GQ/edit?slide=id.g3f5fa28e85f_0_8#slide=id.g3f5fa28e85f_0_8">see full rationale</a></div>
+</div>
+
+<div class="wrap">
+
+<div class="section" style="background:#CACFDF">
+  <div class="section-head">
+    <div class="section-title" style="background:var(--supplier)">Supplier</div>
+    <div class="section-sub">Pipeline stock, status mix, and activity health of the supplier base</div>
+  </div>
+  <div class="cards">
+
+    <div class="card" style="--cat-color:var(--supplier)">
+      <div class="kpi-name">Total Suppliers</div>
+      <div class="value-row"><span class="value">459</span><span class="growth good">↑ 14.5%</span></div>
+      <div class="compare-prior">was 401 (est.) as of Nov 10, 2025</div>
+      <div class="target-row"><div class="target-track"><div class="target-fill" style="width:94%"></div></div><span class="target-value">489</span></div>
+      <div class="target-caption">94% of target</div>
+    </div>
+
+    <div class="card" style="--cat-color:var(--supplier)">
+      <div class="kpi-name">Active Suppliers</div>
+      <div class="value-row"><span class="value">103</span><span class="growth good">↑ 18.4%</span></div>
+      <div class="compare-prior">was 87 as of Nov 10, 2025</div>
+      <div class="target-row"><div class="target-track"><div class="target-fill" style="width:59%"></div></div><span class="target-value">175</span></div>
+      <div class="target-caption">59% of target</div>
+    </div>
+
+    <div class="card" style="--cat-color:var(--supplier)">
+      <div class="kpi-name">Active Suppliers w/ Activity</div>
+      <div class="value-row"><span class="value">31</span><span class="growth good">↑ 29.2%</span></div>
+      <div class="compare-prior">was 24 of 87 (28%) Nov 10, 2025</div>
+      <div class="target-row"><div class="target-track"><div class="target-fill" style="width:35%"></div></div><span class="target-value">88</span></div>
+      <div class="target-caption">35% of target</div>
+    </div>
+
+    <div class="card" style="--cat-color:var(--supplier)">
+      <div class="kpi-name">Suppliers with Engagements</div>
+      <div class="value-row"><span class="value">12</span><span class="growth good">↑ 100.0%</span></div>
+      <div class="compare-prior">was 6 as of Nov 10, 2025</div>
+      <div class="target-row"><div class="target-track"><div class="target-fill" style="width:23%"></div></div><span class="target-value">53</span></div>
+      <div class="target-caption">23% of target</div>
+    </div>
+
+    <div class="card" style="--cat-color:var(--supplier)">
+      <div class="kpi-name">New-Supplier Onboarding Time</div>
+      <div class="value-row"><span class="value">28.0d</span><span class="growth good">↓ 86.8%</span></div>
+      <div class="compare-prior">was 212.0d as of YTD 2025</div>
+      <div class="target-row"><div class="target-track"><div class="target-fill" style="width:54%"></div></div><span class="target-value">15d</span></div>
+      <div class="target-caption">54% to target (lower better)</div>
+    </div>
+
+  </div>
+</div>
+
+<div class="section" style="background:#CCD4EA">
+  <div class="section-head">
+    <div class="section-title" style="background:var(--talent)">Talent</div>
+    <div class="section-sub">Candidates sourced through the supplier network, by status and pipeline speed</div>
+  </div>
+  <div class="cards talent">
+
+    <div class="card" style="--cat-color:var(--talent)">
+      <div class="kpi-name">Active Talents</div>
+      <div class="value-row"><span class="value">208</span><span class="growth good">↑ 48.6%</span></div>
+      <div class="compare-prior">was 140 as of Nov 10, 2025</div>
+      <div class="target-row"><div class="target-track"><div class="target-fill" style="width:23%"></div></div><span class="target-value">889</span></div>
+      <div class="target-caption">23% of target</div>
+    </div>
+
+    <div class="card" style="--cat-color:var(--talent)">
+      <div class="kpi-name">New Talent Approvals/Activation</div>
+      <div class="value-row"><span class="value">65</span><span class="growth good">↑ 441.7%</span></div>
+      <div class="compare-prior">was 12 (Jan 1 – Nov 10, 2025)</div>
+      <div class="target-row"><div class="target-track"><div class="target-fill" style="width:9%"></div></div><span class="target-value">749</span></div>
+      <div class="target-caption">9% of target</div>
+    </div>
+
+    <div class="card" style="--cat-color:var(--talent)">
+      <div class="kpi-name">Talent Submission Lifecycle</div>
+      <div class="value-row"><span class="value">14.0d</span><span class="growth good">↓ 44.0%</span></div>
+      <div class="compare-prior">was 25.0d as of YTD 2025</div>
+      <div class="target-row"><div class="target-track"><div class="target-fill" style="width:100%"></div></div><span class="target-value">15d</span></div>
+      <div class="target-caption">Target exceeded</div>
+    </div>
+
+  </div>
+</div>
+
+<div class="section" style="background:#CED8F4">
+  <div class="section-head">
+    <div class="section-title" style="background:var(--fulfillment)">Job Fulfillment</div>
+    <div class="section-sub">Engagements, placements, and revenue generated through the supplier network</div>
+  </div>
+  <div class="cards fulfillment">
+
+    <div class="card" style="--cat-color:var(--fulfillment)">
+      <div class="kpi-name">SR Fulfillment</div>
+      <div class="value-row"><span class="value">0</span><span class="growth na">n/a</span></div>
+      <div class="compare-prior">was 0 as of Nov 10, 2025</div>
+      <div class="target-row"><div class="target-track"><div class="target-fill" style="width:0%"></div></div><span class="target-value">20</span></div>
+      <div class="target-caption">0% of target</div>
+    </div>
+
+    <div class="card" style="--cat-color:var(--fulfillment)">
+      <div class="kpi-name">Non-SR Fulfillment</div>
+      <div class="value-row"><span class="value">13</span><span class="growth good">↑ 62.5%</span></div>
+      <div class="compare-prior">was 8 as of Nov 10, 2025</div>
+      <div class="target-row"><div class="target-track"><div class="target-fill" style="width:39%"></div></div><span class="target-value">33</span></div>
+      <div class="target-caption">39% of target</div>
+    </div>
+
+    <div class="card" style="--cat-color:var(--fulfillment)">
+      <div class="kpi-name">Total Active Engagements</div>
+      <div class="value-row"><span class="value">13</span><span class="growth good">↑ 62.5%</span></div>
+      <div class="compare-prior">was 8 as of Nov 10, 2025</div>
+      <div class="target-row"><div class="target-track"><div class="target-fill" style="width:21%"></div></div><span class="target-value">63</span></div>
+      <div class="target-caption">21% of target</div>
+    </div>
+
+    <div class="card" style="--cat-color:var(--fulfillment)">
+      <div class="kpi-name">Gross Revenue via Supplier Network</div>
+      <div class="value-row"><span class="value">$1.29M</span><span class="growth good">↑ 24.3%</span></div>
+      <div class="compare-prior">was $1.04M (Jan 1 – Nov 10, 2025)</div>
+      <div class="target-row"><div class="target-track"><div class="target-fill" style="width:25%"></div></div><span class="target-value">$5.26M</span></div>
+      <div class="target-caption">25% of target</div>
+    </div>
+
+  </div>
+</div>
+
+</div>
+
+</body>
+</html>
